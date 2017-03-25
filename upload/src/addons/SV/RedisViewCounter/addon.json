@@ -1,0 +1,10 @@
+{
+    "title": "Redis backed Views Counters",
+    "version_string": "1.0.0",
+    "version_id": 1000000,
+    "dev" : "Xon",
+    "require" : {
+        "SV/RedisCache" : [1, "Redis Cache"],
+        "php": ["5.4.0", "PHP 5.4.0+"]
+    }
+}
