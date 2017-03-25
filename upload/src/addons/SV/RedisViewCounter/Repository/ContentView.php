@@ -35,9 +35,12 @@ class ContentView extends Repository
             return false;
         }
         $useLua = method_exists($cache, 'useLua') && $cache->useLua();
-        $pattern = $app->config['cache']['namespace'] . '[views]['.strval($contentType).'][';
+        $escaped = $pattern = $app->config['cache']['namespace'] . '[views]['.strval($contentType).'][';
+        $escaped = str_replace('[', '\[', $escaped);
+        $escaped = str_replace(']', '\]', $escaped);
 
-        $sql = 'UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?';
+        $db = $app->db();
+        $sql = "UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?";
 
         // indicate to the redis instance would like to process X items at a time.
         $count = 100;
@@ -47,7 +50,7 @@ class ContentView extends Repository
         $cursor = null;
         do
         {
-            $keys = $credis->scan($cursor, $pattern ."*", $count);
+            $keys = $credis->scan($cursor, $escaped ."*", $count);
             $loopGuard--;
             if ($keys === false)
             {
@@ -56,7 +59,7 @@ class ContentView extends Repository
 
             foreach($keys as $key)
             {
-                $id = substr($key, strlen($pattern), -1);
+                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern) - 1);
                 if (preg_match('/^[0-9]+$/', $id) != 1)
                 {
                     continue;
