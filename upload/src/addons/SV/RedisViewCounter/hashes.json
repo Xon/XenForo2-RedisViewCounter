@@ -1,9 +1,0 @@
-{
-    "src/addons/SV/RedisViewCounter/addon.json": "816c6621420c77da95b8886502afa99d6a64d5d394ba2ee0825346733eaf4ffc",
-    "src/addons/SV/RedisViewCounter/Repository/ContentView.php": "2f73d7b0f68a956cece44b6a9121752c9f9c46f6d7744fd8a23cad57b14b3f59",
-    "src/addons/SV/RedisViewCounter/XF/Repository/Attachment.php": "35edba8a6448814f4f00f43d697690ab38a0f2ac720827ae2107ff4898b0c688",
-    "src/addons/SV/RedisViewCounter/XF/Repository/Thread.php": "d8cfae152fd69f25d37ba8dcc4a8353516fc5ee7ab8dd1bc7e0f6ced694c7d75",
-    "src/addons/SV/RedisViewCounter/_data/class_extensions.xml": "6eb7db708e74ff8a570fb5b93c0d675b0a17e0cb97922be4eb04ca80d0084083",
-    "src/addons/SV/RedisViewCounter/_data/cron.xml": "885f548df490eef681c1306922e1a07759b5bb46c35b8812b6ac3e9e918c12b9",
-    "src/addons/SV/RedisViewCounter/_data/phrases.xml": "934796ddd95c7b8675cd45fdfb7f84040bc5e2aee05f3a554434fc88a486c1b3"
-}
