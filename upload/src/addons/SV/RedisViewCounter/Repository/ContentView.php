@@ -16,7 +16,7 @@ class ContentView extends Repository
         }
         $useLua = method_exists($cache, 'useLua') && $cache->useLua();
 
-        $key = $app->config['cache']['namespace'] . '[views]['.strval($contentType).']['.strval($contentId).']';
+        $key = $cache->getNamespacedId('views_'.strval($contentType).'_'.strval($contentId));
 
         $credis->incr($key);
 
@@ -35,7 +35,7 @@ class ContentView extends Repository
             return false;
         }
         $useLua = method_exists($cache, 'useLua') && $cache->useLua();
-        $escaped = $pattern = $app->config['cache']['namespace'] . '[views]['.strval($contentType).'][';
+        $escaped = $pattern = $cache->getNamespacedId('views_'.strval($contentType).'_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
 
