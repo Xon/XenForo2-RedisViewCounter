@@ -2,19 +2,25 @@
 
 namespace SV\RedisViewCounter\Repository;
 
+use SV\RedisCache\Redis;
 use XF\Mvc\Entity\Repository;
 
 class ContentView extends Repository
 {
+    /**
+     * @param string $contentType
+     * @param int $contentId
+     * @return bool
+     */
     public function logView($contentType, $contentId)
     {
-        $app = \XF::app();
+        $app = $this->app();
+        /** @var Redis $cache */
         $cache = $app->cache();
-        if (!$cache || !method_exists($cache, 'getCredis') || !($credis = $cache->getCredis($cache)))
+        if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
         {
             return false;
         }
-        $useLua = method_exists($cache, 'useLua') && $cache->useLua();
 
         $key = $cache->getNamespacedId('views_'.strval($contentType).'_'.strval($contentId));
 
@@ -26,15 +32,23 @@ class ContentView extends Repository
     const LUA_GETDEL_SH1 = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
     const LUA_GETDEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
 
+    /**
+     * @param string $contentType
+     * @param string $table
+     * @param string $contentIdCol
+     * @param string $viewsCol
+     * @return bool
+     */
     public function batchUpdateViews($contentType, $table, $contentIdCol, $viewsCol)
     {
-        $app = \XF::app();
+        $app = $this->app();
+        /** @var Redis $cache */
         $cache = $app->cache();
-        if (!$cache || !method_exists($cache, 'getCredis') || !($credis = $cache->getCredis($cache)))
+        if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
         {
             return false;
         }
-        $useLua = method_exists($cache, 'useLua') && $cache->useLua();
+        $useLua = $cache->useLua();
         $escaped = $pattern = $cache->getNamespacedId('views_'.strval($contentType).'_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);

@@ -6,7 +6,7 @@ class Attachment extends XFCP_Attachment
 {
     public function logAttachmentView(\XF\Entity\Attachment $attachment)
     {
-        /** @var \SV\RedisViewCounter\Repository\ContentView $creator */
+        /** @var \SV\RedisViewCounter\Repository\ContentView $contentView */
         $contentView = $this->repository('\SV\RedisViewCounter\Repository\ContentView');
         if ($contentView->logView('attachment', $attachment->attachment_id))
         {
@@ -17,12 +17,12 @@ class Attachment extends XFCP_Attachment
 
     public function batchUpdateAttachmentViews()
     {
-        /** @var \SV\RedisViewCounter\Repository\ContentView $creator */
+        /** @var \SV\RedisViewCounter\Repository\ContentView $contentView */
         $contentView = $this->repository('\SV\RedisViewCounter\Repository\ContentView');
         if ($contentView->batchUpdateViews('attachment', 'xf_attachment', 'attachment_id', 'view_count'))
         {
             return;
         }
-        parent::batchUpdateAttachmentViews($attachment);
+        parent::batchUpdateAttachmentViews();
     }
 }
