@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<cron>
-  <entry entry_id="views_extra" cron_class="XF\Cron\Views" cron_method="runViewUpdate" active="1"><![CDATA[{"day_type":"dom","dom":["-1"],"hours":["-1"],"minutes":["0","15","45"]}]]></entry>
-</cron>
