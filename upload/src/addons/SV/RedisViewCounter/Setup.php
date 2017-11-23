@@ -1,7 +1,7 @@
 <?php
 
 
-namespace SV\UserActivity;
+namespace SV\RedisViewCounter;
 
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
