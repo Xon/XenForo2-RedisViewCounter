@@ -9,7 +9,7 @@ class ContentView extends Repository
 {
     /**
      * @param string $contentType
-     * @param int $contentId
+     * @param int    $contentId
      * @return bool
      */
     public function logView($contentType, $contentId)
@@ -22,14 +22,14 @@ class ContentView extends Repository
             return false;
         }
 
-        $key = $cache->getNamespacedId('views_'.strval($contentType).'_'.strval($contentId));
+        $key = $cache->getNamespacedId('views_' . strval($contentType) . '_' . strval($contentId));
 
         $credis->incr($key);
 
         return true;
     }
 
-    const LUA_GETDEL_SH1 = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
+    const LUA_GETDEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
     const LUA_GETDEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
 
     /**
@@ -49,7 +49,7 @@ class ContentView extends Repository
             return false;
         }
         $useLua = $cache->useLua();
-        $escaped = $pattern = $cache->getNamespacedId('views_'.strval($contentType).'_');
+        $escaped = $pattern = $cache->getNamespacedId('views_' . strval($contentType) . '_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
 
@@ -64,14 +64,14 @@ class ContentView extends Repository
         $cursor = null;
         do
         {
-            $keys = $credis->scan($cursor, $escaped ."*", $count);
+            $keys = $credis->scan($cursor, $escaped . "*", $count);
             $loopGuard--;
             if ($keys === false)
             {
                 break;
             }
 
-            foreach($keys as $key)
+            foreach ($keys as $key)
             {
                 $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern) - 1);
                 if (preg_match('/^[0-9]+$/', $id) != 1)
@@ -81,10 +81,10 @@ class ContentView extends Repository
                 // atomically get & delete the key
                 if ($useLua)
                 {
-                    $view_count = $credis->evalSha(self::LUA_GETDEL_SH1, array($key), 1);
-                    if (is_null($view_count))
+                    $viewCount = $credis->evalSha(self::LUA_GETDEL_SH1, [$key], 1);
+                    if (is_null($viewCount))
                     {
-                        $view_count = $credis->eval(self::LUA_GETDEL_SCRIPT, array($key), 1);
+                        $viewCount = $credis->eval(self::LUA_GETDEL_SCRIPT, [$key], 1);
                     }
                 }
                 else
@@ -93,17 +93,17 @@ class ContentView extends Repository
                     $credis->get($key);
                     $credis->del($key);
                     $arrData = $credis->exec();
-                    $view_count = $arrData[0];
+                    $viewCount = $arrData[0];
                 }
-                $view_count = intval($view_count);
+                $viewCount = intval($viewCount);
                 // only update the database if a thread view happened
-                if (!empty($view_count))
+                if ($viewCount > 0)
                 {
-                    $db->query($sql, array($view_count, $id));
+                    $db->query($sql, [$viewCount, $id]);
                 }
             }
         }
-        while($loopGuard > 0 && !empty($cursor));
+        while ($loopGuard > 0 && !empty($cursor));
 
         return true;
     }
