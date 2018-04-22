@@ -73,7 +73,7 @@ class ContentView extends Repository
 
             foreach ($keys as $key)
             {
-                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern) - 1);
+                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern));
                 if (preg_match('/^[0-9]+$/', $id) != 1)
                 {
                     continue;
