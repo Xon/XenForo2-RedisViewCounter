@@ -1,8 +1,0 @@
-{
-    "cron_entry.views_extra.txt": {
-        "global_cache": false,
-        "version_id": 1000000,
-        "version_string": "1.0.0",
-        "hash": "9471cacb9dc084e405bd553c1bead5ba"
-    }
-}
