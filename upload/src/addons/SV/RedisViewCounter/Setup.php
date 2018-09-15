@@ -24,7 +24,7 @@ class Setup extends AbstractSetup
         $cache = \XF::app()->cache();
         if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
         {
-            $errors[] = 'This add-on requires Redis Cache to be installed and configured';
+            $warnings[] = 'This add-on requires Redis Cache to be installed and configured';
         }
     }
 }
