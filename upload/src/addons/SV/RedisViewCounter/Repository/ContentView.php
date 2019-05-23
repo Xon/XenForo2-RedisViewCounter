@@ -53,7 +53,6 @@ class ContentView extends Repository
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
 
-        $db = $app->db();
         $sql = "UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?";
 
         // indicate to the redis instance would like to process X items at a time.
@@ -81,10 +80,10 @@ class ContentView extends Repository
                 // atomically get & delete the key
                 if ($useLua)
                 {
-                    $viewCount = $credis->evalSha(self::LUA_GETDEL_SH1, [$key], 1);
+                    $viewCount = $credis->evalSha(self::LUA_GETDEL_SH1, [$key], [1]);
                     if (is_null($viewCount))
                     {
-                        $viewCount = $credis->eval(self::LUA_GETDEL_SCRIPT, [$key], 1);
+                        $viewCount = $credis->eval(self::LUA_GETDEL_SCRIPT, [$key], [1]);
                     }
                 }
                 else
@@ -99,12 +98,23 @@ class ContentView extends Repository
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
-                    $db->query($sql, [$viewCount, $id]);
+                    $this->logDatabaseUpdate($sql, $contentType, $id, $viewCount);
                 }
             }
         }
         while ($loopGuard > 0 && !empty($cursor));
 
         return true;
+    }
+
+    /**
+     * @param string $sql
+     * @param string $contentType
+     * @param int    $id
+     * @param int    $viewCount
+     */
+    protected function logDatabaseUpdate(/** @noinspection PhpUnusedParameterInspection */ $sql, $contentType, $id, $viewCount)
+    {
+        $this->db()->query($sql, [$viewCount, $id]);
     }
 }
