@@ -4,15 +4,15 @@
     "run_rules": {
         "day_type": "dom",
         "dom": [
-            "-1"
+            -1
         ],
         "hours": [
-            "-1"
+            -1
         ],
         "minutes": [
-            "0",
-            "15",
-            "45"
+            0,
+            15,
+            45
         ]
     },
     "active": true
