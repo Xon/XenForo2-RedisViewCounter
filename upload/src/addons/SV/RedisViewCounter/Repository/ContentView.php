@@ -55,11 +55,11 @@ class ContentView extends Repository
 
         $sql = "UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?";
 
-        // indicate to the redis instance would like to process X items at a time.
-        $count = 100;
-        // prevent looping forever
-        $loopGuard = 10000;
-        // find indexes matching the pattern
+        $dbSize = $credis->dbsize() ?: 100000;
+        // indicate to the redis instance would like to process X items at a time. This is before the pattern match is applied!
+        $count = 1000;
+        $loopGuard = ($dbSize / $count) + 10;
+        // only valid values for cursor are null (the stack turns it into a 0) or whatever scan return
         $cursor = null;
         do
         {
