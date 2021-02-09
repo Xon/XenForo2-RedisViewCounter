@@ -6,3 +6,4 @@ Redis provides atomic get & del when pushing view counts totals into the databas
 Supports:
 - Threads view counters
 - Attachment view counters
+- Page view counters

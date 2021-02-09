@@ -1,0 +1,6 @@
+{
+    "from_class": "XF\\Repository\\Page",
+    "to_class": "SV\\RedisViewCounter\\XF\\Repository\\Page",
+    "execute_order": 1,
+    "active": true
+}
