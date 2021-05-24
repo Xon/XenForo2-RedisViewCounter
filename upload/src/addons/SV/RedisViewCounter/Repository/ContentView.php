@@ -17,7 +17,7 @@ class ContentView extends Repository
             return false;
         }
 
-        $key = $cache->getNamespacedId('views_' . strval($contentType) . '_' . strval($contentId));
+        $key = $cache->getNamespacedId('views_' . \strval($contentType) . '_' . \strval($contentId));
 
         $credis->incr($key);
 
@@ -37,7 +37,7 @@ class ContentView extends Repository
             return false;
         }
         $useLua = $cache->useLua();
-        $escaped = $pattern = $cache->getNamespacedId('views_' . strval($contentType) . '_');
+        $escaped = $pattern = $cache->getNamespacedId('views_' . \strval($contentType) . '_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
 
@@ -60,7 +60,7 @@ class ContentView extends Repository
 
             foreach ($keys as $key)
             {
-                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern));
+                $id = substr($key, \strlen($pattern), \strlen($key) - \strlen($pattern));
                 if (preg_match('/^[0-9]+$/', $id) != 1)
                 {
                     continue;
@@ -69,7 +69,7 @@ class ContentView extends Repository
                 if ($useLua)
                 {
                     $viewCount = $credis->evalSha(self::LUA_GETDEL_SH1, [$key], [1]);
-                    if (is_null($viewCount))
+                    if ($viewCount === null)
                     {
                         $viewCount = $credis->eval(self::LUA_GETDEL_SCRIPT, [$key], [1]);
                     }
@@ -82,7 +82,7 @@ class ContentView extends Repository
                     $arrData = $credis->exec();
                     $viewCount = $arrData[0];
                 }
-                $viewCount = intval($viewCount);
+                $viewCount = \intval($viewCount);
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
