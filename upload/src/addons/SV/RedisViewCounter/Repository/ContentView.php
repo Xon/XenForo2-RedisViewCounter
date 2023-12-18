@@ -96,6 +96,7 @@ class ContentView extends Repository
      * @param string $contentType
      * @param int    $id
      * @param int    $viewCount
+     * @return void
      * @noinspection PhpUnusedParameterInspection
      * @noinspection PhpDocMissingThrowsInspection
      */

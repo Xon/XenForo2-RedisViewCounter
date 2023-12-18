@@ -20,6 +20,8 @@ class Setup extends AbstractSetup
 
     public function checkRequirements(&$errors = [], &$warnings = []): void
     {
+        parent::checkRequirements($errors, $warnings);
+
         /** @var Redis $cache */
         $cache = \XF::app()->cache();
         if (!($cache instanceof Redis) || !$cache->getCredis())
