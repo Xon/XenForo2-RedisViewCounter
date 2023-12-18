@@ -14,9 +14,7 @@ class Page extends XFCP_Page
 {
     public function logView(PageEntity $page, UserEntity $user)
     {
-        /** @var ContentView $contentView */
-        $contentView = $this->repository('SV\RedisViewCounter:ContentView');
-        if ($contentView->logView('page', $page->node_id))
+        if (ContentView::get()->logView('page', $page->node_id))
         {
             return;
         }
@@ -25,9 +23,7 @@ class Page extends XFCP_Page
 
     public function batchUpdateViews()
     {
-        /** @var ContentView $contentView */
-        $contentView = $this->repository('SV\RedisViewCounter:ContentView');
-        if ($contentView->batchUpdateViews('page', 'xf_page', 'node_id', 'view_count'))
+        if (ContentView::get()->batchUpdateViews('page', 'xf_page', 'node_id', 'view_count'))
         {
             return;
         }

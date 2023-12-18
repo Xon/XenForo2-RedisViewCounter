@@ -8,9 +8,7 @@ class Thread extends XFCP_Thread
 {
     public function logThreadView(\XF\Entity\Thread $thread)
     {
-        /** @var ContentView $contentView */
-        $contentView = $this->repository('SV\RedisViewCounter:ContentView');
-        if ($contentView->logView('thread', $thread->thread_id))
+        if (ContentView::get()->logView('thread', $thread->thread_id))
         {
             return;
         }
@@ -19,9 +17,7 @@ class Thread extends XFCP_Thread
 
     public function batchUpdateThreadViews()
     {
-        /** @var ContentView $contentView */
-        $contentView = $this->repository('SV\RedisViewCounter:ContentView');
-        if ($contentView->batchUpdateViews('thread', 'xf_thread', 'thread_id', 'view_count'))
+        if (ContentView::get()->batchUpdateViews('thread', 'xf_thread', 'thread_id', 'view_count'))
         {
             return;
         }
