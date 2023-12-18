@@ -7,25 +7,25 @@ use XF\Mvc\Entity\Repository;
 
 class ContentView extends Repository
 {
+    public const LUA_GET_DEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
+    public const LUA_GET_DEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
+
     public function logView(string $contentType, int $contentId): bool
     {
         $app = $this->app();
         /** @var Redis $cache */
         $cache = $app->cache();
-        if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
+        if (!($cache instanceof Redis) || !($credis = $cache->getCredis()))
         {
             return false;
         }
 
-        $key = $cache->getNamespacedId('views_' . \strval($contentType) . '_' . \strval($contentId));
+        $key = $cache->getNamespacedId('views_' . $contentType . '_' . $contentId);
 
         $credis->incr($key);
 
         return true;
     }
-
-    const LUA_GETDEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
-    const LUA_GETDEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
 
     public function batchUpdateViews(string $contentType, string $table, string $contentIdCol, string $viewsCol): bool
     {
@@ -36,8 +36,7 @@ class ContentView extends Repository
         {
             return false;
         }
-        $useLua = $cache->useLua();
-        $escaped = $pattern = $cache->getNamespacedId('views_' . \strval($contentType) . '_');
+        $escaped = $pattern = $cache->getNamespacedId('views_' . $contentType . '_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
 
@@ -51,7 +50,7 @@ class ContentView extends Repository
         $cursor = null;
         do
         {
-            $keys = $credis->scan($cursor, $escaped . "*", $count);
+            $keys = $credis->scan($cursor, $escaped . '*', $count);
             $loopGuard--;
             if ($keys === false)
             {
@@ -66,21 +65,10 @@ class ContentView extends Repository
                     continue;
                 }
                 // atomically get & delete the key
-                if ($useLua)
+                $viewCount = $credis->evalSha(self::LUA_GET_DEL_SH1, [$key], [1]);
+                if ($viewCount === null)
                 {
-                    $viewCount = $credis->evalSha(self::LUA_GETDEL_SH1, [$key], [1]);
-                    if ($viewCount === null)
-                    {
-                        $viewCount = $credis->eval(self::LUA_GETDEL_SCRIPT, [$key], [1]);
-                    }
-                }
-                else
-                {
-                    $credis->pipeline()->multi();
-                    $credis->get($key);
-                    $credis->del($key);
-                    $arrData = $credis->exec();
-                    $viewCount = $arrData[0];
+                    $viewCount = $credis->eval(self::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
                 $viewCount = \intval($viewCount);
                 // only update the database if a thread view happened

@@ -2,7 +2,7 @@
 
 namespace SV\RedisViewCounter\XF\Cron;
 
-
+use SV\RedisViewCounter\XF\Repository\Page as PageRepo;
 
 /**
  * Extends \XF\Cron\Views
@@ -13,7 +13,7 @@ class Views extends XFCP_Views
     {
         parent::runViewUpdate();
 
-        /** @var \SV\RedisViewCounter\XF\Repository\Page $attachmentRepo */
+        /** @var PageRepo $attachmentRepo */
         $attachmentRepo = \XF::app()->repository('XF:Page');
         $attachmentRepo->batchUpdateViews();
     }
