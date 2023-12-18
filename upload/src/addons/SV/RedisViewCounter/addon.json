@@ -3,18 +3,27 @@
     "title": "Redis backed Views Counters",
     "description": "Use redis for view counters rather than MySQL",
     "version_string": "2.3.0",
-    "version_id": 2030000,
-    "dev" : "Xon",
+    "version_id": 1702930930,
+    "dev": "Xon",
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
     "support_url": "https://xenforo.com/community/resources/redis-view-counters.5563/",
     "extra_urls": {
         "Add-on site": "https://atelieraphelion.com/products/redis-view-counter.196/"
     },
-    "require" : {
-        "SV/RedisCache" : [2000000, "Redis Cache v2.0.0"],
-        "XF": [2020070, "XenForo 2.2.0+"],
-        "php": ["7.2.0", "PHP 7.2.0+"]
+    "require": {
+        "SV/RedisCache": [
+            2000000,
+            "Redis Cache v2.0.0"
+        ],
+        "XF": [
+            2020070,
+            "XenForo 2.2.0+"
+        ],
+        "php": [
+            "7.2.0",
+            "PHP 7.2.0+"
+        ]
     },
     "icon": "fa-forward"
 }
