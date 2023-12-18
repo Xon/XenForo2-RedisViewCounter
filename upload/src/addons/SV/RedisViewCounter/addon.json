@@ -3,7 +3,7 @@
     "title": "Redis backed Views Counters",
     "description": "Use redis for view counters rather than MySQL",
     "version_string": "2.3.0",
-    "version_id": 1702930930,
+    "version_id": 1702932904,
     "dev": "Xon",
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
