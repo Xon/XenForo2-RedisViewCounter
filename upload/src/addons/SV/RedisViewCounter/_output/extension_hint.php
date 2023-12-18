@@ -9,6 +9,11 @@ namespace SV\RedisViewCounter\XenAddons\AMS\Repository
 	class XFCP_Article extends \XenAddons\AMS\Repository\Article {}
 }
 
+namespace SV\RedisViewCounter\XFRM\Repository
+{
+	class XFCP_ResourceItem extends \XFRM\Repository\ResourceItem {}
+}
+
 namespace SV\RedisViewCounter\XF\Cron
 {
 	class XFCP_Views extends \XF\Cron\Views {}

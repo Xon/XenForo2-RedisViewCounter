@@ -1,0 +1,6 @@
+{
+    "from_class": "XFRM\\Repository\\ResourceItem",
+    "to_class": "SV\\RedisViewCounter\\XFRM\\Repository\\ResourceItem",
+    "execute_order": 1,
+    "active": true
+}
