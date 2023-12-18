@@ -76,9 +76,11 @@ class ContentView extends Repository
                     continue;
                 }
                 // atomically get & delete the key
+                /** @var int|null $viewCount */
                 $viewCount = $credis->evalSha(self::LUA_GET_DEL_SH1, [$key], [1]);
                 if ($viewCount === null)
                 {
+                    /** @var int $viewCount */
                     $viewCount = $credis->eval(self::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
                 $viewCount = intval($viewCount);
