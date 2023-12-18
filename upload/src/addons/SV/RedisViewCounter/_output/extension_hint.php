@@ -4,6 +4,11 @@
 // ################## THIS IS A GENERATED FILE ##################
 // DO NOT EDIT DIRECTLY. EDIT THE CLASS EXTENSIONS IN THE CONTROL PANEL.
 
+namespace SV\RedisViewCounter\XenAddons\AMS\Repository
+{
+	class XFCP_Article extends \XenAddons\AMS\Repository\Article {}
+}
+
 namespace SV\RedisViewCounter\XF\Cron
 {
 	class XFCP_Views extends \XF\Cron\Views {}

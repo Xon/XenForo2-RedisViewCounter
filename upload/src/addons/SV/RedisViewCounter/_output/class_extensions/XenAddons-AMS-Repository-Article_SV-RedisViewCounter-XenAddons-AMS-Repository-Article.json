@@ -1,0 +1,6 @@
+{
+    "from_class": "XenAddons\\AMS\\Repository\\Article",
+    "to_class": "SV\\RedisViewCounter\\XenAddons\\AMS\\Repository\\Article",
+    "execute_order": 1,
+    "active": true
+}
