@@ -4,6 +4,7 @@ namespace SV\RedisViewCounter\Repository;
 
 use SV\RedisCache\Redis;
 use XF\Mvc\Entity\Repository;
+use function intval;
 use function preg_match;
 use function str_replace;
 use function strlen;
@@ -78,7 +79,7 @@ class ContentView extends Repository
                 {
                     $viewCount = $credis->eval(self::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
-                $viewCount = \intval($viewCount);
+                $viewCount = intval($viewCount);
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
