@@ -4,6 +4,10 @@ namespace SV\RedisViewCounter\Repository;
 
 use SV\RedisCache\Redis;
 use XF\Mvc\Entity\Repository;
+use function preg_match;
+use function str_replace;
+use function strlen;
+use function substr;
 
 class ContentView extends Repository
 {
@@ -35,9 +39,7 @@ class ContentView extends Repository
 
     public function batchUpdateViews(string $contentType, string $table, string $contentIdCol, string $viewsCol): bool
     {
-        $app = $this->app();
-        /** @var Redis $cache */
-        $cache = $app->cache();
+        $cache = $this->app()->cache();
         if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
         {
             return false;
@@ -65,7 +67,7 @@ class ContentView extends Repository
 
             foreach ($keys as $key)
             {
-                $id = substr($key, \strlen($pattern), \strlen($key) - \strlen($pattern));
+                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern));
                 if (preg_match('/^[0-9]+$/', $id) != 1)
                 {
                     continue;
