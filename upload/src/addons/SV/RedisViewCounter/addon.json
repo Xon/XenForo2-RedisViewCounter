@@ -8,7 +8,9 @@
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
     "support_url": "https://xenforo.com/community/resources/redis-view-counters.5563/",
-    "extra_urls": [],
+    "extra_urls": {
+        "Add-on site": "https://atelieraphelion.com/products/redis-view-counter.196/"
+    },
     "require" : {
         "SV/RedisCache" : [2000000, "Redis Cache v2.0.0"],
         "XF": [2020070, "XenForo 2.2.0+"],
