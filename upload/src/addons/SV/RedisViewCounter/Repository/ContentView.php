@@ -33,6 +33,7 @@ class ContentView extends Repository
 
         $key = $cache->getNamespacedId('views_' . $contentType . '_' . $contentId);
 
+        // this sets without an TTL or expiry date, and requires the batchUpdateViews to run to purge these entries!
         $credis->incr($key);
 
         return true;
@@ -48,6 +49,7 @@ class ContentView extends Repository
         $escaped = $pattern = $cache->getNamespacedId('views_' . $contentType . '_');
         $escaped = str_replace('[', '\[', $escaped);
         $escaped = str_replace(']', '\]', $escaped);
+        $escaped .= '*';
 
         $sql = "UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?";
 
@@ -59,7 +61,7 @@ class ContentView extends Repository
         $cursor = null;
         do
         {
-            $keys = $credis->scan($cursor, $escaped . '*', $count);
+            $keys = $credis->scan($cursor, $escaped, $count);
             $loopGuard--;
             if ($keys === false)
             {
