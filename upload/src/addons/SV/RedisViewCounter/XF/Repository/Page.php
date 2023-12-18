@@ -5,6 +5,7 @@ namespace SV\RedisViewCounter\XF\Repository;
 use SV\RedisViewCounter\Repository\ContentView;
 use XF\Entity\Page as PageEntity;
 use XF\Entity\User as UserEntity;
+use function is_callable;
 
 /**
  * Extends \XF\Repository\Page
@@ -28,9 +29,12 @@ class Page extends XFCP_Page
         $contentView = $this->repository('SV\RedisViewCounter:ContentView');
         if ($contentView->batchUpdateViews('page', 'xf_page', 'node_id', 'view_count'))
         {
-            /** @noinspection PhpUnnecessaryStopStatementInspection */
             return;
         }
-        //parent::batchUpdateViews();
+        if (is_callable([parent::class, 'batchUpdateViews']))
+        {
+            /** @noinspection PhpUndefinedMethodInspection */
+            parent::batchUpdateViews();
+        }
     }
 }
