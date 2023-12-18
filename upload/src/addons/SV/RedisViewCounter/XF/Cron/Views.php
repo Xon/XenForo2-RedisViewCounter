@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection PhpUndefinedClassInspection
+ */
 
 namespace SV\RedisViewCounter\XF\Cron;
 
