@@ -2,22 +2,27 @@
     "legacy_addon_id": "SV_RedisThreadView",
     "title": "Redis backed Views Counters",
     "description": "Use redis for view counters rather than MySQL",
-    "version_string": "2.3.0",
-    "version_id": 1702932904,
+    "version_string": "2.4.0",
+    "version_id": 1711301993,
     "dev": "Xon",
     "dev_url": "https://atelieraphelion.com/",
     "faq_url": "",
     "support_url": "https://xenforo.com/community/resources/redis-view-counters.5563/",
     "extra_urls": {
+        "License": "https://atelieraphelion.com/products/redis-view-counter.196/copyright",
         "Add-on site": "https://atelieraphelion.com/products/redis-view-counter.196/"
     },
     "require": {
+        "SV/StandardLib": [
+            2001190100,
+            "Standard Library by Xon v1.19.0+"
+        ],
         "SV/RedisCache": [
-            2000000,
+            "2.17.0",
             "Redis Cache v2.0.0"
         ],
         "XF": [
-            2020070,
+            "2.2.0",
             "XenForo 2.2.0+"
         ],
         "php": [

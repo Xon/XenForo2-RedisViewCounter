@@ -2,7 +2,8 @@
 
 namespace SV\RedisViewCounter\Repository;
 
-use SV\RedisCache\Redis;
+use SV\RedisCache\Repository\Redis as RedisRepo;
+use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Repository;
 use function intval;
 use function preg_match;
@@ -17,16 +18,13 @@ class ContentView extends Repository
 
     public static function get(): self
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return \XF::repository('SV\RedisViewCounter:ContentView');
+        return Helper::repository(self::class);
     }
 
     public function logView(string $contentType, int $contentId): bool
     {
-        $app = $this->app();
-        /** @var Redis $cache */
-        $cache = $app->cache();
-        if (!($cache instanceof Redis) || !($credis = $cache->getCredis()))
+        $cache = RedisRepo::get()->getRedisConnector();
+        if ($cache === null || !($credis = $cache->getCredis()))
         {
             return false;
         }
@@ -41,8 +39,8 @@ class ContentView extends Repository
 
     public function batchUpdateViews(string $contentType, string $table, string $contentIdCol, string $viewsCol): bool
     {
-        $cache = $this->app()->cache();
-        if (!($cache instanceof Redis) || !($credis = $cache->getCredis(false)))
+        $cache = RedisRepo::get()->getRedisConnector();
+        if ($cache === null || !($credis = $cache->getCredis(false)))
         {
             return false;
         }

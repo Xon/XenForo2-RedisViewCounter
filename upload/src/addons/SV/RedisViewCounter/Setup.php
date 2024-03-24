@@ -3,11 +3,11 @@
 
 namespace SV\RedisViewCounter;
 
+use SV\RedisCache\Repository\Redis as RedisRepo;
 use XF\AddOn\AbstractSetup;
 use XF\AddOn\StepRunnerInstallTrait;
 use XF\AddOn\StepRunnerUninstallTrait;
 use XF\AddOn\StepRunnerUpgradeTrait;
-use SV\RedisCache\Redis;
 
 /**
  * Add-on installation, upgrade, and uninstall routines.
@@ -22,9 +22,8 @@ class Setup extends AbstractSetup
     {
         parent::checkRequirements($errors, $warnings);
 
-        /** @var Redis $cache */
-        $cache = \XF::app()->cache();
-        if (!($cache instanceof Redis) || !$cache->getCredis())
+        $cache = \XF::isAddOnActive('SV/RedisCache') ? RedisRepo::get()->getRedisConnector() : null;
+        if ($cache === null || !$cache->getCredis())
         {
             $warnings[] = 'This add-on requires Redis Cache to be installed and configured';
         }
