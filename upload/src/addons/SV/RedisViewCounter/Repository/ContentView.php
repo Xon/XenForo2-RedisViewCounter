@@ -7,7 +7,6 @@ namespace SV\RedisViewCounter\Repository;
 use SV\RedisCache\Repository\Redis as RedisRepo;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Repository;
-use function intval;
 use function preg_match;
 use function str_replace;
 use function strlen;
@@ -71,19 +70,18 @@ class ContentView extends Repository
             foreach ($keys as $key)
             {
                 $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern));
-                if (preg_match('/^[0-9]+$/', $id) != 1)
+                if ($id === false || preg_match('/^[0-9]+$/', $id) !== 1)
                 {
                     continue;
                 }
+                $id = (int)$id;
                 // atomically get & delete the key
-                /** @var int|null $viewCount */
                 $viewCount = $credis->evalSha(self::LUA_GET_DEL_SH1, [$key], [1]);
                 if ($viewCount === null)
                 {
-                    /** @var int $viewCount */
                     $viewCount = $credis->eval(self::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
-                $viewCount = intval($viewCount);
+                $viewCount = (int)$viewCount;
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
