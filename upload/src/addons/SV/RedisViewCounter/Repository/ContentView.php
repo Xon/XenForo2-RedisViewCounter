@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace SV\RedisViewCounter\Repository;
 
+use Credis_Client;
 use SV\RedisCache\Repository\Redis as RedisRepo;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Repository;
 use function preg_match;
-use function str_replace;
-use function strlen;
-use function substr;
 
 class ContentView extends Repository
 {
     public const LUA_GET_DEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
     public const LUA_GET_DEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
+    protected $batchSize = 1000;
 
     public static function get(): self
     {
@@ -41,40 +40,23 @@ class ContentView extends Repository
     public function batchUpdateViews(string $contentType, string $table, string $contentIdCol, string $viewsCol): bool
     {
         $cache = RedisRepo::get()->getRedisConnector();
-        if ($cache === null || !($credis = $cache->getCredis(false)))
+        if ($cache === null || !$cache->getCredis(false))
         {
             return false;
         }
-        $escaped = $pattern = $cache->getNamespacedId('views_' . $contentType . '_');
-        $escaped = str_replace('[', '\[', $escaped);
-        $escaped = str_replace(']', '\]', $escaped);
-        $escaped .= '*';
 
+        $cursor = null;
         $sql = "UPDATE `{$table}` SET `{$viewsCol}` = `{$viewsCol}` + ? WHERE `{$contentIdCol}` = ?";
 
-        $dbSize = $credis->dbsize() ?: 100000;
-        // indicate to the redis instance would like to process X items at a time. This is before the pattern match is applied!
-        $count = 1000;
-        $loopGuard = ($dbSize / $count) + 10;
-        // only valid values for cursor are null (the stack turns it into a 0) or whatever scan return
-        $cursor = null;
-        do
-        {
-            $keys = $credis->scan($cursor, $escaped, $count);
-            $loopGuard--;
-            if ($keys === false)
-            {
-                break;
-            }
-
+        $pattern = 'views_' . $contentType . '_';
+        RedisRepo::get()->visitCacheByPattern($pattern, $cursor, 0, function (Credis_Client $credis, array $keys) use ($contentType, $sql) {
             foreach ($keys as $key)
             {
-                $id = substr($key, strlen($pattern), strlen($key) - strlen($pattern));
-                if ($id === false || preg_match('/^[0-9]+$/', $id) !== 1)
+                if (preg_match('/_([0-9]+)$/', $key, $match) !== 1)
                 {
                     continue;
                 }
-                $id = (int)$id;
+                $id = (int)$match[1];
                 // atomically get & delete the key
                 $viewCount = $credis->evalSha(self::LUA_GET_DEL_SH1, [$key], [1]);
                 if ($viewCount === null)
@@ -88,8 +70,7 @@ class ContentView extends Repository
                     $this->logDatabaseUpdate($sql, $contentType, $id, $viewCount);
                 }
             }
-        }
-        while ($loopGuard > 0 && !empty($cursor));
+        }, $this->batchSize, $cache);
 
         return true;
     }
