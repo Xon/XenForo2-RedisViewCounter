@@ -25,7 +25,7 @@ class ContentView extends Repository
     public function logView(string $contentType, int $contentId): bool
     {
         $cache = RedisRepo::get()->getRedisConnector();
-        if ($cache === null || !($credis = $cache->getCredis()))
+        if ($cache === null || !($credis = $cache->getCredis(false)))
         {
             return false;
         }
@@ -105,6 +105,6 @@ class ContentView extends Repository
      */
     protected function logDatabaseUpdate(string $sql, string $contentType, int $id, int $viewCount)
     {
-        $this->db()->query($sql, [$viewCount, $id]);
+        \XF::db()->query($sql, [$viewCount, $id]);
     }
 }
