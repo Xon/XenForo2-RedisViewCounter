@@ -53,7 +53,8 @@ class PushContentViewsToDatabaseJob extends AbstractJob
 
         $startTime = microtime(true);
 
-        $steps = ContentView::get()->incrementalBatchUpdateViews($cursor, $contentType, $table, $contentIdCol, $viewsCol, $batch, $maxRunTime);
+        $repo = ContentView::get();
+        $steps = $repo->incrementalBatchUpdateViews($cursor, $contentType, $table, $contentIdCol, $viewsCol, $batch, $maxRunTime);
         if (!$cursor)
         {
             return $this->complete();
@@ -61,7 +62,7 @@ class PushContentViewsToDatabaseJob extends AbstractJob
 
         $this->data['steps'] += $steps;
         $this->data['cursor'] = $cursor;
-        $this->data['batch'] = $this->calculateOptimalBatch($this->data['batch'], $steps, $startTime, $maxRunTime, 10000);
+        $this->data['batch'] = $this->calculateOptimalBatch($this->data['batch'], $steps, $startTime, $maxRunTime, $repo->getMaxBatchSize());
 
         return $this->resume();
     }

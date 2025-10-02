@@ -15,7 +15,8 @@ class ContentView extends Repository
 {
     public const LUA_GET_DEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
     public const LUA_GET_DEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
-    protected $batchSize = 1000;
+    protected $initialBatchSize = 200;
+    protected $maxBatchSize = 2000;
 
     public static function get(): self
     {
@@ -46,9 +47,14 @@ class ContentView extends Repository
             return false;
         }
 
-        PushContentViewsToDatabaseJob::enqueue($contentType, $table, $contentIdCol, $viewsCol, $this->batchSize);
+        PushContentViewsToDatabaseJob::enqueue($contentType, $table, $contentIdCol, $viewsCol, $this->initialBatchSize);
 
         return true;
+    }
+
+    public function getMaxBatchSize(): int
+    {
+        return $this->maxBatchSize;
     }
 
     /**
