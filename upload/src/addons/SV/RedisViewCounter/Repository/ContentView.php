@@ -82,6 +82,7 @@ class ContentView extends Repository
                 {
                     $viewCount = $credis->eval(static::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
+                // $viewCount can be false if the key doesn't exist
                 $viewCount = (int)$viewCount;
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
