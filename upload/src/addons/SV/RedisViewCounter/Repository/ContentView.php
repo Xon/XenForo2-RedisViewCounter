@@ -50,7 +50,7 @@ class ContentView extends Repository
         $escaped = str_replace(']', '\]', $escaped);
         $escaped .= '*';
 
-        $sql = "UPDATE {$table} SET {$viewsCol} = {$viewsCol} + ? where {$contentIdCol} = ?";
+        $sql = "UPDATE `{$table}` SET `{$viewsCol}` = `{$viewsCol}` + ? WHERE `{$contentIdCol}` = ?";
 
         $dbSize = $credis->dbsize() ?: 100000;
         // indicate to the redis instance would like to process X items at a time. This is before the pattern match is applied!
