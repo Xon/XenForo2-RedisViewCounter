@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SV\RedisViewCounter\Repository;
 
 use SV\RedisCache\Repository\Redis as RedisRepo;
