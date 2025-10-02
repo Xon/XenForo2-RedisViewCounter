@@ -6,6 +6,7 @@ namespace SV\RedisViewCounter\Repository;
 
 use Credis_Client;
 use SV\RedisCache\Repository\Redis as RedisRepo;
+use SV\RedisViewCounter\Job\PushContentViewsToDatabaseJob;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Repository;
 use function preg_match;
@@ -45,23 +46,41 @@ class ContentView extends Repository
             return false;
         }
 
-        $cursor = null;
-        $sql = "UPDATE `{$table}` SET `{$viewsCol}` = `{$viewsCol}` + ? WHERE `{$contentIdCol}` = ?";
+        PushContentViewsToDatabaseJob::enqueue($contentType, $table, $contentIdCol, $viewsCol, $this->batchSize);
 
+        return true;
+    }
+
+    /**
+     * @param string|int|null $cursor
+     * @param string          $contentType
+     * @param string          $table
+     * @param string          $contentIdCol
+     * @param string          $viewsCol
+     * @param int             $batch
+     * @param float|int       $maxRunTime
+     * @return int
+     */
+    public function incrementalBatchUpdateViews(&$cursor, string $contentType, string $table, string $contentIdCol, string $viewsCol, int $batch, $maxRunTime): int
+    {
+        $sql = "UPDATE `{$table}` SET `{$viewsCol}` = `{$viewsCol}` + ? WHERE `{$contentIdCol}` = ?";
         $pattern = 'views_' . $contentType . '_';
-        RedisRepo::get()->visitCacheByPattern($pattern, $cursor, 0, function (Credis_Client $credis, array $keys) use ($contentType, $sql) {
+        $steps = 0;
+        RedisRepo::get()->visitCacheByPattern($pattern, $cursor, $maxRunTime, function (Credis_Client $credis, array $keys) use ($sql, $contentType, &$steps) {
+            $scriptSh1 = static::LUA_GET_DEL_SH1;
             foreach ($keys as $key)
             {
                 if (preg_match('/_([0-9]+)$/', $key, $match) !== 1)
                 {
                     continue;
                 }
+                $steps++;
                 $id = (int)$match[1];
                 // atomically get & delete the key
-                $viewCount = $credis->evalSha(self::LUA_GET_DEL_SH1, [$key], [1]);
+                $viewCount = $credis->evalSha($scriptSh1, [$key], [1]);
                 if ($viewCount === null)
                 {
-                    $viewCount = $credis->eval(self::LUA_GET_DEL_SCRIPT, [$key], [1]);
+                    $viewCount = $credis->eval(static::LUA_GET_DEL_SCRIPT, [$key], [1]);
                 }
                 $viewCount = (int)$viewCount;
                 // only update the database if a thread view happened
@@ -70,9 +89,9 @@ class ContentView extends Repository
                     $this->logDatabaseUpdate($sql, $contentType, $id, $viewCount);
                 }
             }
-        }, $this->batchSize, $cache);
+        }, $batch);
 
-        return true;
+        return $steps;
     }
 
     /**
