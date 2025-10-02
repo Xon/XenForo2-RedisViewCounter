@@ -19,7 +19,7 @@
         ],
         "SV/RedisCache": [
             "2.17.0",
-            "Redis Cache v2.0.0"
+            "Redis Cache v2.17.0"
         ],
         "XF": [
             "2.1.0",
