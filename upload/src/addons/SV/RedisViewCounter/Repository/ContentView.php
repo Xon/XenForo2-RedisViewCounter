@@ -15,8 +15,8 @@ class ContentView extends Repository
 {
     public const LUA_GET_DEL_SH1    = '6ba37a6998bb00d0b7f837a115df4b20388b71e0';
     public const LUA_GET_DEL_SCRIPT = "local oldVal = redis.call('GET', KEYS[1]) redis.call('DEL', KEYS[1]) return oldVal ";
-    protected $initialBatchSize = 1000;
-    protected $maxBatchSize = 4000;
+    protected $initialBatchSize = 2000;
+    protected $maxBatchSize = 10000;
 
     public static function get(): self
     {
