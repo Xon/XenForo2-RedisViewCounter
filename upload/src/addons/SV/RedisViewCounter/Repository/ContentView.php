@@ -7,8 +7,15 @@ namespace SV\RedisViewCounter\Repository;
 use Credis_Client;
 use SV\RedisCache\Repository\Redis as RedisRepo;
 use SV\RedisViewCounter\Job\PushContentViewsToDatabaseJob;
+use SV\RedisViewCounter\PushCountsToDatabase\AbstractHandler;
+use SV\RedisViewCounter\PushCountsToDatabase\AMSArticleHandler;
+use SV\RedisViewCounter\PushCountsToDatabase\AttachmentHandler;
+use SV\RedisViewCounter\PushCountsToDatabase\PageHandler;
+use SV\RedisViewCounter\PushCountsToDatabase\ResourceHandler;
+use SV\RedisViewCounter\PushCountsToDatabase\ThreadHandler;
 use SV\StandardLib\Helper;
 use XF\Mvc\Entity\Repository;
+use function count;
 use function preg_match;
 
 class ContentView extends Repository
@@ -39,7 +46,7 @@ class ContentView extends Repository
         return true;
     }
 
-    public function batchUpdateViews(string $contentType, string $table, string $contentIdCol, string $viewsCol): bool
+    public function batchUpdateViews(string $contentType): bool
     {
         $cache = RedisRepo::get()->getRedisConnector();
         if ($cache === null || !$cache->getCredis(false))
@@ -47,7 +54,7 @@ class ContentView extends Repository
             return false;
         }
 
-        PushContentViewsToDatabaseJob::enqueue($contentType, $table, $contentIdCol, $viewsCol, $this->initialBatchSize);
+        PushContentViewsToDatabaseJob::enqueue($contentType, $this->initialBatchSize);
 
         return true;
     }
@@ -57,23 +64,44 @@ class ContentView extends Repository
         return $this->maxBatchSize;
     }
 
+    public function getHandler(string $contentType): ?AbstractHandler
+    {
+        switch ($contentType)
+        {
+            case ThreadHandler::CACHE_KEY: $class = ThreadHandler::class; break;
+            case AttachmentHandler::CACHE_KEY: $class = AttachmentHandler::class; break;
+            case PageHandler::CACHE_KEY: $class = PageHandler::class; break;
+            case AMSArticleHandler::CACHE_KEY: $class = AMSArticleHandler::class; break;
+            case ResourceHandler::CACHE_KEY: $class = ResourceHandler::class; break;
+            //case 'thread':
+            default: return null;
+        }
+
+        /** @var AbstractHandler $obj */
+        $obj = Helper::newExtendedClass($class);
+        if (!$obj->isActive())
+        {
+            return null;
+        }
+
+        return $obj;
+    }
+
     /**
      * @param string|int|null $cursor
      * @param string          $contentType
-     * @param string          $table
-     * @param string          $contentIdCol
-     * @param string          $viewsCol
      * @param int             $batch
      * @param float|int       $maxRunTime
      * @return int
      */
-    public function incrementalBatchUpdateViews(&$cursor, string $contentType, string $table, string $contentIdCol, string $viewsCol, int $batch, $maxRunTime): int
+    public function incrementalBatchUpdateViews(&$cursor, string $contentType, int $batch, $maxRunTime): int
     {
-        $sql = "UPDATE `{$table}` SET `{$viewsCol}` = `{$viewsCol}` + ? WHERE `{$contentIdCol}` = ?";
+        $handler = $this->getHandler($contentType);
         $pattern = 'views_' . $contentType . '_';
         $steps = 0;
-        RedisRepo::get()->visitCacheByPattern($pattern, $cursor, $maxRunTime, function (Credis_Client $credis, array $keys) use ($sql, $contentType, &$steps) {
+        RedisRepo::get()->visitCacheByPattern($pattern, $cursor, $maxRunTime, function (Credis_Client $credis, array $keys) use ($handler, &$steps) {
             $scriptSh1 = static::LUA_GET_DEL_SH1;
+            $viewMetrics = [];
             foreach ($keys as $key)
             {
                 if (preg_match('/_([0-9]+)$/', $key, $match) !== 1)
@@ -93,25 +121,24 @@ class ContentView extends Repository
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
-                    $this->logDatabaseUpdate($sql, $contentType, $id, $viewCount);
+                    $viewMetrics[$id] += ($viewMetrics[$id] ?? 0) + $viewCount;
                 }
             }
+
+            if (count($viewMetrics) === 0)
+            {
+                return;
+            }
+            $handler->batchDatabaseUpdate($viewMetrics);
         }, $batch);
 
         return $steps;
     }
 
     /**
-     * @param string $sql
-     * @param string $contentType
-     * @param int    $id
-     * @param int    $viewCount
-     * @return void
-     * @noinspection PhpUnusedParameterInspection
-     * @noinspection PhpDocMissingThrowsInspection
+     * @deprecated
      */
     protected function logDatabaseUpdate(string $sql, string $contentType, int $id, int $viewCount)
     {
-        \XF::db()->query($sql, [$viewCount, $id]);
     }
 }

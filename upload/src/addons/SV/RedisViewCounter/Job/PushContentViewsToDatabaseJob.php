@@ -9,23 +9,17 @@ use function microtime;
 
 class PushContentViewsToDatabaseJob extends AbstractJob
 {
-    public static function enqueue(string $contentType, string $table, string $contentIdCol, string $viewsCol, int $batch): ?int
+    public static function enqueue(string $contentType, int $batch): ?int
     {
         return \XF::app()->jobManager()->enqueue(
             PushContentViewsToDatabaseJob::class, [
             'contentType'  => $contentType,
-            'table'        => $table,
-            'contentIdCol' => $contentIdCol,
-            'viewsCol'     => $viewsCol,
             'batch'        => $batch,
         ], false);
     }
 
     protected $defaultData = [
         'contentType'  => null,
-        'table'        => null,
-        'contentIdCol' => null,
-        'viewsCol'     => null,
         'steps'        => 0,
         'cursor'       => null, // null - start new, 0 - stop, otherwise it is a blob returned from redis
         'batch'        => 1000,
@@ -38,12 +32,9 @@ class PushContentViewsToDatabaseJob extends AbstractJob
     public function run($maxRunTime): JobResult
     {
         $contentType = $this->data['contentType'];
-        $table = $this->data['table'];
-        $contentIdCol = $this->data['contentIdCol'];
-        $viewsCol = $this->data['viewsCol'];
         $batch = $this->data['batch'];
 
-        if ($contentType === null || $table === null || $contentIdCol === null || $viewsCol === null)
+        if ($contentType === null)
         {
             return $this->complete();
         }
@@ -54,7 +45,7 @@ class PushContentViewsToDatabaseJob extends AbstractJob
         $startTime = microtime(true);
 
         $repo = ContentView::get();
-        $steps = $repo->incrementalBatchUpdateViews($cursor, $contentType, $table, $contentIdCol, $viewsCol, $batch, $maxRunTime);
+        $steps = $repo->incrementalBatchUpdateViews($cursor, $contentType, $batch, $maxRunTime);
         if (!$cursor)
         {
             return $this->complete();

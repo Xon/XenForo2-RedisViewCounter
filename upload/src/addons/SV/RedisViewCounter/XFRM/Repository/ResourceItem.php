@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SV\RedisViewCounter\XFRM\Repository;
 
+use SV\RedisViewCounter\PushCountsToDatabase\ResourceHandler;
 use SV\RedisViewCounter\Repository\ContentView;
 
 /**
@@ -13,7 +14,7 @@ class ResourceItem extends XFCP_ResourceItem
 {
     public function logResourceView(\XFRM\Entity\ResourceItem $resource)
     {
-        if (ContentView::get()->logView('xfrm_resource', $resource->resource_id))
+        if (ContentView::get()->logView(ResourceHandler::CACHE_KEY, $resource->resource_id))
         {
             return;
         }
@@ -22,7 +23,7 @@ class ResourceItem extends XFCP_ResourceItem
 
     public function batchUpdateResourceViews()
     {
-        if (ContentView::get()->batchUpdateViews('xfrm_resource', 'xf_rm_resource', 'resource_id', 'view_count'))
+        if (ContentView::get()->batchUpdateViews(ResourceHandler::CACHE_KEY))
         {
             return;
         }
