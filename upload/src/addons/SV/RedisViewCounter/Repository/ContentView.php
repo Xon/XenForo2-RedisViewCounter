@@ -121,7 +121,7 @@ class ContentView extends Repository
                 // only update the database if a thread view happened
                 if ($viewCount > 0)
                 {
-                    $viewMetrics[$id] += ($viewMetrics[$id] ?? 0) + $viewCount;
+                    $viewMetrics[$id] = ($viewMetrics[$id] ?? 0) + $viewCount;
                 }
             }
 
