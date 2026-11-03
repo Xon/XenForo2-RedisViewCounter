@@ -11,12 +11,6 @@ class PageHandler extends AbstractHandler
 {
     public const CACHE_KEY = 'page';
 
-    /** @noinspection PhpMissingParentCallCommonInspection */
-    public function isActive(): bool
-    {
-        return Helper::isAddOnActive('SV/BbCodePages');
-    }
-
     protected function getEntityContentType(): ?string
     {
         return null;
