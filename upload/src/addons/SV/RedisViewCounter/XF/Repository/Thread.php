@@ -10,6 +10,9 @@ use SV\RedisViewCounter\XF\Repository\Page as ExtendedPageRepo;
 use XF\Repository\Page as PageRepo;
 use SV\StandardLib\Helper;
 
+/**
+ * @extends \XF\Repository\Thread
+ */
 class Thread extends XFCP_Thread
 {
     public function logThreadView(\XF\Entity\Thread $thread)

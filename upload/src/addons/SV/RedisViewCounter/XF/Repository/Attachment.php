@@ -7,6 +7,9 @@ namespace SV\RedisViewCounter\XF\Repository;
 use SV\RedisViewCounter\PushCountsToDatabase\AttachmentHandler;
 use SV\RedisViewCounter\Repository\ContentView;
 
+/**
+ * @extends \XF\Repository\Attachment
+ */
 class Attachment extends XFCP_Attachment
 {
     public function logAttachmentView(\XF\Entity\Attachment $attachment)

@@ -11,7 +11,7 @@ use XF\Entity\User as UserEntity;
 use function is_callable;
 
 /**
- * Extends \XF\Repository\Page
+ * @extends \XF\Repository\Page
  */
 class Page extends XFCP_Page
 {
