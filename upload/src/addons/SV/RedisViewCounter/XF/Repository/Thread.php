@@ -26,9 +26,9 @@ class Thread extends XFCP_Thread
 
     public function batchUpdateThreadViews()
     {
-        /** @var ExtendedPageRepo $attachmentRepo */
-        $attachmentRepo = Helper::repository(PageRepo::class);
-        $attachmentRepo->batchUpdateViews();
+        /** @var ExtendedPageRepo $pageRepo */
+        $pageRepo = Helper::repository(PageRepo::class);
+        $pageRepo->batchUpdateViews();
 
         if (ContentView::get()->batchUpdateViews(ThreadHandler::CACHE_KEY))
         {
