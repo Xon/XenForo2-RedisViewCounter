@@ -33,7 +33,7 @@ class ContentView extends Repository
     public function logView(string $contentType, int $contentId): bool
     {
         $cache = RedisRepo::get()->getRedisConnector();
-        if ($cache === null || !($credis = $cache->getCredis(false)))
+        if ($cache === null || !($credis = $cache->getCredis(false)) || $this->getHandler($contentType) === null)
         {
             return false;
         }
@@ -49,7 +49,7 @@ class ContentView extends Repository
     public function batchUpdateViews(string $contentType): bool
     {
         $cache = RedisRepo::get()->getRedisConnector();
-        if ($cache === null || !$cache->getCredis(false))
+        if ($cache === null || !$cache->getCredis(false) || $this->getHandler($contentType) === null)
         {
             return false;
         }
