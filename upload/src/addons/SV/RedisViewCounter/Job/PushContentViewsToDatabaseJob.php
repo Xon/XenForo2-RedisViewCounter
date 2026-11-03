@@ -55,7 +55,7 @@ class PushContentViewsToDatabaseJob extends AbstractJob
 
         $this->data['steps'] += $steps;
         $this->data['cursor'] = $cursor;
-        $this->data['batch'] = $this->calculateOptimalBatch($this->data['batch'], $steps, $startTime, $maxRunTime, $repo->getMaxBatchSize());
+        $this->data['batch'] = (int)$this->calculateOptimalBatch($this->data['batch'], $steps, $startTime, $maxRunTime, $repo->getMaxBatchSize());
 
         return $this->resume();
     }
