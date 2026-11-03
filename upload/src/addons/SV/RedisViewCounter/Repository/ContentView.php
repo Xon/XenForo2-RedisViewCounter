@@ -97,6 +97,11 @@ class ContentView extends Repository
     public function incrementalBatchUpdateViews(&$cursor, string $contentType, int $batch, $maxRunTime): int
     {
         $handler = $this->getHandler($contentType);
+        if ($handler == null)
+        {
+            $cursor = 0;
+            return 0;
+        }
         $pattern = 'views_' . $contentType . '_';
         $steps = 0;
         RedisRepo::get()->visitCacheByPattern($pattern, $cursor, $maxRunTime, function (Credis_Client $credis, array $keys) use ($handler, &$steps) {
