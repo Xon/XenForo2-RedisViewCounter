@@ -34,7 +34,7 @@ class PushContentViewsToDatabaseJob extends AbstractJob
     public function run($maxRunTime): JobResult
     {
         $contentType = $this->data['contentType'];
-        $batch = $this->data['batch'];
+        $batch = (int)$this->data['batch'];
 
         if ($contentType === null)
         {
