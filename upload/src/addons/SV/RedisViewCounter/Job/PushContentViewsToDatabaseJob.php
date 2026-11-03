@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SV\RedisViewCounter\Job;
 
 use SV\RedisViewCounter\Repository\ContentView;
